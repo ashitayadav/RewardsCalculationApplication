@@ -3,12 +3,16 @@ package service;
 import dto.Customer;
 import dto.RewardsResponse;
 import dto.Transaction;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Log4j2
+@Service
 public class RewardService {
 
     /**
@@ -24,6 +28,11 @@ public class RewardService {
             List<Transaction> customerTransactions = transactions.stream()
                     .filter(t -> t.getCustomerId().equals(customer.getId()))
                     .collect(Collectors.toList());
+            log.debug("Transactions found for the customer : {}", customerTransactions);
+
+            if (customerTransactions.isEmpty())  {
+                throw new RuntimeException("No transaction found for the customer");
+            }
 
             // Calculate monthly and total points
             Map<String, Integer> monthlyPoints = new HashMap<>();

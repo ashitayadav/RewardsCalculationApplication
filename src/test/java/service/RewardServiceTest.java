@@ -66,15 +66,8 @@ class RewardServiceTest {
         );
 
         List<Transaction> transactions = List.of(); // No transactions
-
-        // Call the method under test
-        List<RewardsResponse> rewardPoints = rewardService.calculateRewardPoints(customers, transactions);
-
         // Assertions to ensure no points are given when there are no transactions
-        assertNotNull(rewardPoints);
-        assertEquals(2, rewardPoints.size()); // Two customers
-        assertEquals(0, rewardPoints.get(0).getTotalPoints());
-        assertEquals(0, rewardPoints.get(1).getTotalPoints());
+        assertThrows(RuntimeException.class, () -> rewardService.calculateRewardPoints(customers, transactions));
     }
 
     @Test

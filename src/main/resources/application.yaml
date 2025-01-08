@@ -1,3 +1,4 @@
 spring:
+  port : 8080
   profiles:
     active: dev

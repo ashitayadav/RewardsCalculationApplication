@@ -3,6 +3,7 @@ package controller;
 import dto.Customer;
 import dto.RewardsResponse;
 import dto.Transaction;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,7 @@ import service.RewardService;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @RestController
 public class RewardController {
 
@@ -23,6 +25,7 @@ public class RewardController {
      */
     @GetMapping("/rewards")
     public List<RewardsResponse> getRewardPoints() {
+        log.info("Initialise reward calculation");
         List<Customer> customers = List.of(new Customer(1L,"Albert"),
                 new Customer(2L, "Dani"));
 
