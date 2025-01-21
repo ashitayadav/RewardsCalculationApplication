@@ -11,11 +11,12 @@ Total points calculation for each customer across all transactions.
 
 ### **Technologies Used**
 
-* Java 11 (or higher)
+* Java 17 (or higher)
 * Spring Boot (for building the REST API)
 * JUnit 5 (for unit testing)
 * Mockito (for mocking dependencies in tests)
 * Maven (for project management)
+* H2 database
 
 ### **Usage**
 
@@ -48,7 +49,7 @@ Example Response:
 
 ### **Reward Points Calculation**
 
-For transactions above $100, points are calculated as (amount - 100) * 2 in addition to points earned from amounts above $50.
+For transactions above $100, points are calculated as (amount - 100)*2 in addition to points earned from amounts above $50.
 For transactions above $50, points are calculated as (amount - 50).
 Example:
 
