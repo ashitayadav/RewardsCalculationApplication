@@ -1,6 +1,7 @@
 package com.demo.service;
 
 import com.demo.dto.Customer;
+import com.demo.dto.MonthlyPoints;
 import com.demo.dto.RewardsResponse;
 import com.demo.dto.Transaction;
 import com.demo.exception.CustomerNotFoundException;
@@ -22,7 +23,6 @@ public class RewardService {
 
     @Autowired
     private TransactionRepository transactionRepository;
-
     /**
      * method to calculate RewardPoints based upon customer and number of transactions.
      *
@@ -33,13 +33,15 @@ public class RewardService {
 
         Optional<List<Customer>> customers = customerRepository.findByCustomerId(customerId);
         List<RewardsResponse> rewards = new ArrayList<>();
+
         if (customers.isPresent() && customers.get().isEmpty()) {
             throw new CustomerNotFoundException("No record found for this customer");
         }
+
         customers.ifPresent(
                 customerList -> customerList.forEach(c -> {
                     Optional<List<Transaction>> transactions = transactionRepository.findByCustomerId(c.getCustomerId());
-                    Map<String, Integer> monthlyPoints = new HashMap<>();
+                    List<MonthlyPoints> monthlyPoints = new ArrayList<>();
                     if (transactions.isPresent() && transactions.get().isEmpty()) {
                         throw new TransactionNotFoundException("No transactions found for this customer");
                     }
@@ -47,12 +49,13 @@ public class RewardService {
                             transactionList -> transactionList.forEach(t -> {
                                 int points = calculatePoints(t.getAmount());
                                 String month = t.getTransactionDate().getMonth().toString();
-
-                                monthlyPoints.put(month, monthlyPoints.getOrDefault(month, 0) + points);
-
+                                int year = t.getTransactionDate().getYear();
+                                monthlyPoints.add(new MonthlyPoints(year, month, points));
+                                ;
                             })
                     );
-                    rewards.add(new RewardsResponse(c.getCustomerId(), c.getName(), monthlyPoints));
+                    int totalPoints = monthlyPoints.stream().mapToInt(MonthlyPoints::getPoints).sum();
+                    rewards.add(new RewardsResponse(c.getCustomerId(), c.getName(), transactions, monthlyPoints, totalPoints));
                 })
         );
         return rewards;

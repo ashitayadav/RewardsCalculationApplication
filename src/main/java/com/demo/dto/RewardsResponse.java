@@ -3,9 +3,9 @@ package com.demo.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
 @Data
 @NoArgsConstructor
@@ -16,5 +16,9 @@ public class RewardsResponse {
 
     private String customerName;
 
-    private Map<String,Integer> monthlyPoints;
+    private Optional<List<Transaction>> transaction;
+
+    private List<MonthlyPoints> monthlyPoints;
+
+    private int totalPoints;
 }

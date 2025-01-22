@@ -2,6 +2,7 @@ package controller;
 
 import com.demo.controller.RewardController;
 import com.demo.dto.Customer;
+import com.demo.dto.MonthlyPoints;
 import com.demo.dto.RewardsResponse;
 import com.demo.dto.Transaction;
 import com.demo.exception.CustomerNotFoundException;
@@ -14,8 +15,8 @@ import org.mockito.MockitoAnnotations;
 import com.demo.service.RewardService;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,9 +54,7 @@ class RewardControllerTest {
         RewardsResponse response = new RewardsResponse();
         response.setId(1L);
         response.setCustomerName("Albert");
-        response.setMonthlyPoints(Map.of(
-                "2024-11",90  // Assume 50 points for November
-        ));
+        response.setMonthlyPoints(Collections.singletonList(new MonthlyPoints(2024, "NOVEMBER", 90))); // Assume 50 points for November
 
         List<RewardsResponse> expectedResponse = List.of(response);
 

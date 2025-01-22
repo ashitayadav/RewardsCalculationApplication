@@ -57,8 +57,8 @@ class RewardServiceTest {
         // Assertions for Albert
         RewardsResponse response = rewardPoints.get(0);
         assertEquals("Albert", response.getCustomerName());
-        assertEquals(1, response.getMonthlyPoints().size());
-        assertEquals(116, response.getMonthlyPoints().get("NOVEMBER"));
+        assertEquals(2, response.getMonthlyPoints().size());
+        assertEquals(116, response.getTotalPoints());
     }
 
     @Test
@@ -94,8 +94,8 @@ class RewardServiceTest {
         RewardsResponse albertResponse = rewardPoints.get(0);
         assertEquals("Albert", albertResponse.getCustomerName());
         assertEquals(2, albertResponse.getMonthlyPoints().size());
-        assertEquals(90, albertResponse.getMonthlyPoints().get("NOVEMBER"));
-        assertEquals(30, albertResponse.getMonthlyPoints().get("DECEMBER"));
+        assertEquals(90, albertResponse.getMonthlyPoints().get(0).getPoints());
+        assertEquals(30, albertResponse.getMonthlyPoints().get(1).getPoints());
     }
 
     @Test

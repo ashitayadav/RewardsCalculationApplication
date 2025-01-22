@@ -63,12 +63,35 @@ The following technologies are used to implement the API:
 ```json
 [
   {
-    "id": 2,
-    "customerName": "Bob",
-    "monthlyPoints": {
-      "OCTOBER": 0,
-      "DECEMBER": 250
-    }
+    "id": 1,
+    "customerName": "Alice",
+    "transaction": [
+      {
+        "id": 1,
+        "customerId": 1,
+        "amount": 120.0,
+        "transactionDate": "2024-11-01"
+      },
+      {
+        "id": 2,
+        "customerId": 1,
+        "amount": 75.0,
+        "transactionDate": "2024-11-15"
+      }
+    ],
+    "monthlyPoints": [
+      {
+        "year": 2024,
+        "month": "NOVEMBER",
+        "points": 90
+      },
+      {
+        "year": 2024,
+        "month": "NOVEMBER",
+        "points": 25
+      }
+    ],
+    "totalPoints": 115
   }
 ]
 ```
