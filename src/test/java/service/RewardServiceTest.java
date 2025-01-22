@@ -1,21 +1,33 @@
-/*
 package service;
 
 import com.demo.dto.Customer;
 import com.demo.dto.RewardsResponse;
 import com.demo.dto.Transaction;
+import com.demo.exception.CustomerNotFoundException;
+import com.demo.exception.TransactionNotFoundException;
+import com.demo.repository.CustomerRepository;
+import com.demo.repository.TransactionRepository;
 import com.demo.service.RewardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 class RewardServiceTest {
+
+    @Mock
+    private CustomerRepository customerRepository;
+
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @InjectMocks
     private RewardService rewardService;
@@ -27,36 +39,26 @@ class RewardServiceTest {
     }
 
     @Test
-    void testCalculateRewardPoints() {
+    void testCalculateRewardPoints() throws CustomerNotFoundException {
         // Prepare mock data
         List<Customer> customers = List.of(
-                new Customer(1L, "Albert"),
-                new Customer(2L, "Dani")
-        );
+                new Customer(1L, "Albert"));
+        when(customerRepository.findByCustomerId(1L)).thenReturn(Optional.of(customers));
 
         List<Transaction> transactions = List.of(
-                new Transaction(1L, 120.0, LocalDate.of(2024, 11, 1)),
-                new Transaction(1L, 76.0, LocalDate.of(2024, 11, 15)),
-                new Transaction(2L, 120.0, LocalDate.of(2024, 12, 1)),
-                new Transaction(2L, 120.0, LocalDate.of(2024, 12, 5))
+                new Transaction(1L,1L, 120.0, LocalDate.of(2024, 11, 1)),
+                new Transaction(2L,1L, 76.0, LocalDate.of(2024, 11, 15))
         );
+        when(transactionRepository.findByCustomerId(1L)).thenReturn(Optional.of(transactions));
 
         // Call the method under test
-        List<RewardsResponse> rewardPoints = rewardService.calculateRewardPoints(customers, transactions);
+        List<RewardsResponse> rewardPoints = rewardService.calculateRewardPoints(1L);
 
         // Assertions for Albert
-        RewardsResponse albertResponse = rewardPoints.get(0);
-        assertEquals("Albert", albertResponse.getCustomerName());
-        assertEquals(1, albertResponse.getMonthlyPoints().size());
-        assertEquals(116, albertResponse.getMonthlyPoints().get("NOVEMBER"));
-        assertEquals(116, albertResponse.getTotalPoints());
-
-        // Assertions for Dani
-        RewardsResponse daniResponse = rewardPoints.get(1);
-        assertEquals("Dani", daniResponse.getCustomerName());
-        assertEquals(1, daniResponse.getMonthlyPoints().size());
-        assertEquals(180, daniResponse.getMonthlyPoints().get("DECEMBER"));
-        assertEquals(180, daniResponse.getTotalPoints());
+        RewardsResponse response = rewardPoints.get(0);
+        assertEquals("Albert", response.getCustomerName());
+        assertEquals(1, response.getMonthlyPoints().size());
+        assertEquals(116, response.getMonthlyPoints().get("NOVEMBER"));
     }
 
     @Test
@@ -66,26 +68,27 @@ class RewardServiceTest {
                 new Customer(1L, "Albert"),
                 new Customer(2L, "Dani")
         );
-
+        when(customerRepository.findByCustomerId(1L)).thenReturn(Optional.of(customers));
         List<Transaction> transactions = List.of(); // No transactions
+        when(transactionRepository.findByCustomerId(1L)).thenReturn(Optional.of(transactions));
         // Assertions to ensure no points are given when there are no transactions
-        assertThrows(RuntimeException.class, () -> rewardService.calculateRewardPoints(customers, transactions));
+        assertThrows(TransactionNotFoundException.class, () -> rewardService.calculateRewardPoints(1L));
     }
 
     @Test
-    void testCalculateRewardPointsMultipleTransactionsSameMonth() {
+    void testCalculateRewardPointsMultipleTransactionsSameMonth() throws CustomerNotFoundException {
         // Prepare mock data with multiple transactions for the same month
         List<Customer> customers = List.of(
                 new Customer(1L, "Albert")
         );
-
+        when(customerRepository.findByCustomerId(1L)).thenReturn(Optional.of(customers));
         List<Transaction> transactions = List.of(
-                new Transaction(1L, 120.0, LocalDate.of(2024, 11, 1)),
-                new Transaction(1L, 80.0, LocalDate.of(2024, 12, 15))
+                new Transaction(1L,1L, 120.0, LocalDate.of(2024, 11, 1)),
+                new Transaction(2L,1L, 80.0, LocalDate.of(2024, 12, 15))
         );
-
+        when(transactionRepository.findByCustomerId(1L)).thenReturn(Optional.of(transactions));
         // Call the method under test
-        List<RewardsResponse> rewardPoints = rewardService.calculateRewardPoints(customers, transactions);
+        List<RewardsResponse> rewardPoints = rewardService.calculateRewardPoints(1L);
 
         // Assertions for Albert (same month, two transactions)
         RewardsResponse albertResponse = rewardPoints.get(0);
@@ -93,29 +96,14 @@ class RewardServiceTest {
         assertEquals(2, albertResponse.getMonthlyPoints().size());
         assertEquals(90, albertResponse.getMonthlyPoints().get("NOVEMBER"));
         assertEquals(30, albertResponse.getMonthlyPoints().get("DECEMBER"));
-        assertEquals(120, albertResponse.getTotalPoints());
     }
 
     @Test
-    void testCalculateRewardPointsSingleTransaction() {
+    void testCalculateRewardsWithNoCustomer() throws CustomerNotFoundException {
         // Prepare mock data with a single transaction for a customer
-        List<Customer> customers = List.of(
-                new Customer(1L, "Albert")
-        );
-
-        List<Transaction> transactions = List.of(
-                new Transaction(1L, 120.0, LocalDate.of(2024, 11, 1))
-        );
-
-        // Call the method under test
-        List<RewardsResponse> rewardPoints = rewardService.calculateRewardPoints(customers, transactions);
-
-        // Assertions for Albert
-        RewardsResponse albertResponse = rewardPoints.get(0);
-        assertEquals("Albert", albertResponse.getCustomerName());
-        assertEquals(1, albertResponse.getMonthlyPoints().size());
-        assertEquals(90, albertResponse.getMonthlyPoints().get("NOVEMBER"));
-        assertEquals(90, albertResponse.getTotalPoints());
+        List<Customer> customers = List.of();
+        when(customerRepository.findByCustomerId(0L)).thenReturn(Optional.of(customers));
+        assertThrows(CustomerNotFoundException.class, () -> rewardService.calculateRewardPoints(0L));
     }
 
     @Test
@@ -127,4 +115,3 @@ class RewardServiceTest {
         assertEquals(150, rewardService.calculatePoints(150.0));
     }
 }
-*/

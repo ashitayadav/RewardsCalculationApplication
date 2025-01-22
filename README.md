@@ -1,57 +1,103 @@
-# **Project Overview**
+# Rewards Program API
 
-The Reward Application is a backend service designed to calculate reward points for customers based on their transaction history. Customers earn points based on the amount spent in each transaction. Points are calculated monthly and totaled for each customer.
+An API that calculates and tracks customer reward points based on purchase transactions. Points are awarded as follows:
 
-### **Features**
+- **2 points per dollar** for amounts over $100.
+- **1 point per dollar** for amounts between $50 and $100.
 
-Calculate reward points for customers based on their transaction history.
-Points are calculated differently for transactions over $50 and $100.
-Monthly points calculation for each customer.
-Total points calculation for each customer across all transactions.
+## Table of Contents
 
-### **Technologies Used**
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Technologies](#technologies)
+- [API Endpoints](#api-endpoints)
+- [Running the Project](#running-the-project)
 
-* Java 17 (or higher)
-* Spring Boot (for building the REST API)
-* JUnit 5 (for unit testing)
-* Mockito (for mocking dependencies in tests)
-* Maven (for project management)
-* H2 database
+## Overview
 
-### **Usage**
+This API calculates reward points for customers based on their transaction amounts. The points are awarded according to the following logic:
 
-#### API Endpoints
+- For purchases over **$100**, customers earn **2 points per dollar** for the amount over $100.
+- For purchases between **$50 and $100**, customers earn **1 point per dollar** for the amount between $50 and $100.
 
-##### GET /rewards
+Example Calculation
 
-This endpoint returns a list of reward points for each customer based on their transaction history.
+For a $120 purchase:
+- **$20** over $100 earns **2 points per dollar**: `2 * $20 = 40 points`.
+- **$50** between $50 and $100 earns **1 point per dollar**: `1 * $50 = 50 points`.
 
-Example Request:
-GET http://localhost:8080/rewards
+Total reward points: **90 points**.
 
-Example Response:
+## Architecture
+
+The API is structured in a layered architecture:
+
+- **Controller Layer**: Handles incoming HTTP request and provides appropriate responses.
+- **Service Layer**: Contains the business logic to calculate reward points.
+- **Repository Layer**: Manages the storage of transaction records.
+- **POJOs (Plain Old Java Objects)**: Data models for customers and their transactions.
+- **Global Exception Handler**: Catches and returns consistent error messages.
+
+## Technologies
+
+The following technologies are used to implement the API:
+
+- **Java**: The primary programming language used to implement the business logic.
+- **Spring Boot**: Framework used to build the RESTful API.
+- **JUnit**: Used for unit testing.
+- **H2 Database**: An in-memory database used to store transaction records and calculate points.
+- **Postman**: Tool used for testing the API endpoints.
+- **Maven**: Build automation tool.
+
+## API Endpoint
+
+### 1. Fetch the reward summary for a customer provided customerId.
+
+**GET** `/rewards/{customerId}`
+
+**Request Example**:
+`/rewards/1`
+
+**Response**:
+
+```json
 [
-{
-"customerName": "Albert",
-"monthlyPoints": {
-"NOVEMBER": 140
-},
-"totalPoints": 140
-},
-{
-"customerName": "Dani",
-"monthlyPoints": {
-"DECEMBER": 180
-},
-"totalPoints": 180
-}
+  {
+    "id": 2,
+    "customerName": "Bob",
+    "monthlyPoints": {
+      "OCTOBER": 0,
+      "DECEMBER": 250
+    }
+  }
 ]
+```
 
-### **Reward Points Calculation**
+## Running the Project
 
-For transactions above $100, points are calculated as (amount - 100)*2 in addition to points earned from amounts above $50.
-For transactions above $50, points are calculated as (amount - 50).
-Example:
+Follow the steps below to clone, build, and run the project:
 
-A $120 transaction would earn 40 points for the amount above $100 and 50 points for the amount between $50 and $100, for a total of 90 points.
-A $50 transaction would earn 0 points (since it's below the $50 threshold).
+### 1. Clone the Repository
+
+Clone the project to your local machine using the following command:
+
+```bash
+git clone https://github.com/ashitayadav/RewardsCalculationApplication.git
+```
+
+### 2. Build the Project
+
+Navigate to the project directory and build the project using Maven. This will download dependencies and compile the project.
+
+```bash
+mvn clean install
+```
+
+### 3. Run the Application
+After building the project, you can run the application with the following command:
+
+```bash
+mvn spring-boot:run
+```
+
+Once the application is running, you can access the API at [http://localhost:8080](http://localhost:8080)

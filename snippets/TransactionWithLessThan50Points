@@ -1,0 +1,14 @@
+Request:
+http://localhost:8080/rewards/2
+
+Response:
+[
+    {
+        "id": 2,
+        "customerName": "Bob",
+        "monthlyPoints": {
+            "OCTOBER": 0,
+            "DECEMBER": 250
+        }
+    }
+]

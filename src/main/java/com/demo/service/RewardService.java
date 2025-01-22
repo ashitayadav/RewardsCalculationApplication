@@ -40,6 +40,9 @@ public class RewardService {
                 customerList -> customerList.forEach(c -> {
                     Optional<List<Transaction>> transactions = transactionRepository.findByCustomerId(c.getCustomerId());
                     Map<String, Integer> monthlyPoints = new HashMap<>();
+                    if (transactions.isPresent() && transactions.get().isEmpty()) {
+                        throw new TransactionNotFoundException("No transactions found for this customer");
+                    }
                     transactions.ifPresent(
                             transactionList -> transactionList.forEach(t -> {
                                 int points = calculatePoints(t.getAmount());

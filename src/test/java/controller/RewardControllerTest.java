@@ -1,10 +1,11 @@
-/*
 package controller;
 
 import com.demo.controller.RewardController;
 import com.demo.dto.Customer;
 import com.demo.dto.RewardsResponse;
 import com.demo.dto.Transaction;
+import com.demo.exception.CustomerNotFoundException;
+import com.demo.exception.TransactionNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,63 +36,52 @@ class RewardControllerTest {
     }
 
     @Test
-    void testGetRewardPoints() {
+    void testGetRewardPoints() throws CustomerNotFoundException {
         // Prepare mock data
         List<Customer> customers = List.of(
-                new Customer(1L, "Albert"),
-                new Customer(2L, "Dani")
+                new Customer(1L, "Albert")
         );
 
         List<Transaction> transactions = List.of(
-                new Transaction(1L, 120.0, LocalDate.of(2024, 11, 1)),
-                new Transaction(1L, 76.0, LocalDate.of(2024, 11, 15)),
-                new Transaction(2L, 120.0, LocalDate.of(2024, 12, 1)),
-                new Transaction(2L, 120.0, LocalDate.of(2024, 12, 1))
+                new Transaction(1L,1L, 120.0, LocalDate.of(2024, 11, 1)),
+                new Transaction(2L,1L, 76.0, LocalDate.of(2024, 11, 15)),
+                new Transaction(3L,2L, 120.0, LocalDate.of(2024, 12, 1)),
+                new Transaction(4L,2L, 120.0, LocalDate.of(2024, 12, 1))
         );
 
         // Creating expected response for mock service
-        RewardsResponse albertResponse = new RewardsResponse();
-        albertResponse.setCustomerName("Albert");
-        albertResponse.setMonthlyPoints(Map.of(
-                "2024-11", 50  // Assume 50 points for November
+        RewardsResponse response = new RewardsResponse();
+        response.setId(1L);
+        response.setCustomerName("Albert");
+        response.setMonthlyPoints(Map.of(
+                "2024-11",90  // Assume 50 points for November
         ));
-        albertResponse.setTotalPoints(50);  // Total reward points for Albert
 
-        RewardsResponse daniResponse = new RewardsResponse();
-        daniResponse.setCustomerName("Dani");
-        daniResponse.setMonthlyPoints(Map.of(
-                "2024-12", 180  // Assume 180 points for December
-        ));
-        daniResponse.setTotalPoints(180);  // Total reward points for Dani
-
-        List<RewardsResponse> expectedResponse = List.of(albertResponse, daniResponse);
+        List<RewardsResponse> expectedResponse = List.of(response);
 
         // Mock the RewardService behavior
-        when(rewardService.calculateRewardPoints(customers, transactions)).thenReturn(expectedResponse);
+        when(rewardService.calculateRewardPoints(1L)).thenReturn(expectedResponse);
 
         // Call the method in RewardController
-        List<RewardsResponse> actualResponse = rewardController.getRewardPoints();
+        List<RewardsResponse> actualResponse = rewardController.getRewardPoints(1L);
 
         // Assertions to validate the response
 
         assertNotNull(actualResponse);
-        assertEquals(2, actualResponse.size());
-
-        // Check Albert's response
-        RewardsResponse albert = actualResponse.get(0);
-        assertEquals("Albert", albert.getCustomerName());
-        assertEquals(50, albert.getTotalPoints());
-        assertEquals(1, albert.getMonthlyPoints().size());
-        assertEquals(50, albert.getMonthlyPoints().get("2024-11"));
-
-        // Check Dani's response
-        RewardsResponse dani = actualResponse.get(1);
-        assertEquals("Dani", dani.getCustomerName());
-        assertEquals(180, dani.getTotalPoints());
-        assertEquals(1, dani.getMonthlyPoints().size());
-        assertEquals(180, dani.getMonthlyPoints().get("2024-12"));
-
+        assertEquals(1, actualResponse.size());
         // Verify that the RewardService's method was called with the correct parameters
-        verify(rewardService, times(1)).calculateRewardPoints(customers, transactions);
+        verify(rewardService, times(1)).calculateRewardPoints(1L);
     }
-}*/
+
+    @Test
+    void getRewardPointsThrowsCustomerException() throws CustomerNotFoundException {
+        when(rewardService.calculateRewardPoints(0L)).thenThrow(CustomerNotFoundException.class);
+        assertThrows(CustomerNotFoundException.class,() -> rewardController.getRewardPoints(0L));
+    }
+
+    @Test
+    void getRewardPointsThrowsTransactionException() throws TransactionNotFoundException, CustomerNotFoundException {
+        when(rewardService.calculateRewardPoints(3L)).thenThrow(TransactionNotFoundException.class);
+        assertThrows(TransactionNotFoundException.class, () -> rewardController.getRewardPoints(3L));
+    }
+}

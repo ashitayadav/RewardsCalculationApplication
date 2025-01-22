@@ -1,5 +1,5 @@
 INSERT INTO CUSTOMER (customer_id, name) VALUES
-(1, 'Alice'), (2, 'Bob') ;
+(1, 'Alice'), (2, 'Bob') ,  (3, 'Daniel');
 
 INSERT INTO TRANSACTION (id, customer_id, amount, transaction_date) VALUES
 (1, 1, 120, '2024-11-01'),
